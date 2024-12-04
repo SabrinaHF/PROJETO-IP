@@ -12,11 +12,13 @@
 import json
 import requests
 from deep_translator import GoogleTranslator
+import os
 
-url= 'https://api.adviceslip.com/advice'
+url = 'https://api.adviceslip.com/advice'
+arquivo_conselhos = 'conselhos_salvos.txt'
+
 
 def menu_principal():
-    
     print('\n')
     print('~~~~~~ Cachaçaria do Seu Zé ~~~~~~')
     print('\n')
@@ -25,62 +27,97 @@ def menu_principal():
     print('          ==> Menu <==')
     print('\n')
     print(' 1. Quer tomar um ou mais conselhos, daqueles bem ligeiro?')
-    print(' 2. Quer relembrar alguns conselhos véi? Apoi escolha esse aqui.')
+    print(' 2. Quer relembrar alguns conselhos, véi? Apoi escolha esse aqui.')
     print(' 3. Quer ir simbora? Então tá certo...')
     print('\n')
-    
-    while True:
-        try:
-            opcao = int(input(' -> Me diga aqui a opção, homi: '))
-            if opcao in [1, 2, 3]:
-                break
-            else:
-                print('Errrouu! Opção inválida. Tente novamente, por favor.')
-        except ValueError:
-            print('Por favor, digite um número válido, vai.')
-    
-    return opcao
+    opcao = int(input(' -> Me diga aqui a opção, homi: '))
 
-menu_principal()
-
-def exibir_conselhos():
+    if opcao == 1:
+        opcao_um()
+    elif opcao == 2:
+        opcao_dois()
+    elif opcao == 3:
+        print("Até logo, véi! Volte sempre.")
+    else:
+        print("Opção inválida. Tente novamente.")
+        menu_principal()
 
 
+def opcao_um():
     print('\n')
     num = int(input(' -> Quer um conselho ou mais? Me diga quantos: '))
     print('\n')
+    conselhos = []
 
-    for i in range (num):
+    for i in range(num):
         consulta = requests.get(url)
         lista = consulta.json()
+        conselho_id = lista["slip"]["id"]
         conselho = lista["slip"]["advice"]
-        print(f' >> Conselho nº {i+1}: {conselho}')
-    
+        conselhos.append((conselho_id, conselho))
+        print(f' >> Conselho nº {i + 1}: {conselho}')
+
     print('\n')
     print(' -> Ê hein, achei profundo... tu achasse? Me diz lá embaixo.')
     print('\n')
     print(' 1. Entendi foi nada, traduz aí!')
-    print(' 2. Guarde esses conselhos pra mim, robô!')
+    print(' 2. Eu entendi foi tudo, pois sou troglodita... digo, poliglota. Guarde esses conselhos pra mim, robô.')
     print(' 3. Quero voltar lá no começo!')
     print('\n')
     escolha = int(input(' -> Digita aqui ó, a opção:'))
-    
-def main():
 
-    while True:
-        opcao = menu_principal()
-        
-        if opcao == 1:
-            voltar_ao_menu = exibir_conselhos()
-            if voltar_ao_menu:
-                continue  
-        elif opcao == 2:
-            print("Aqui você pode mostrar conselhos antigos...")
-        elif opcao == 3:
-            print('Saindo... Até mais!')
-            break  
-        else:
-            print('Opção inválida, tente novamente.')
+    if escolha == 1:
+        for _, texto in conselhos:
+            traduzido = traduzir_conselho(texto)
+            print(f' >> Traduzido: {traduzido}')
+    elif escolha == 2:
+        salvar_conselhos(conselhos)
+    elif escolha == 3:
+        menu_principal()
+    else:
+        print("Opção inválida. Voltando ao menu principal.")
+        menu_principal()
 
-main()
 
+def opcao_dois():
+    print('\n -> Relembrando conselhos salvos...')
+    if not os.path.exists(arquivo_conselhos):
+        print(' -> Nenhum conselho salvo ainda.')
+        return
+
+    with open(arquivo_conselhos, 'r') as arquivo:
+        conselhos = arquivo.readlines()
+
+    for conselho in conselhos:
+        print(f' >> {conselho.strip()}')
+
+    print('\n')
+    print(' -> Quer traduzir os conselhos salvos? (s/n)')
+    traduzir = input(' -> Responda aqui: ').lower()
+    if traduzir == 's':
+        for conselho in conselhos:
+            _, texto = conselho.strip().split(": ", 1)
+            traduzido = traduzir_conselho(texto)
+            print(f' >> Traduzido: {traduzido}')
+    else:
+        print(' -> Voltando ao menu principal...')
+        menu_principal()
+
+
+def salvar_conselhos(conselhos):
+    print('\n -> Salvando conselhos...')
+    with open(arquivo_conselhos, 'a') as arquivo:
+        for id_, texto in conselhos:
+            arquivo.write(f'{id_}: {texto}\n')
+    print(' -> Conselhos salvos com sucesso!')
+
+
+def traduzir_conselho(conselho):
+    try:
+        return GoogleTranslator(source='auto', target='pt').translate(conselho)
+    except Exception as e:
+        print(f'Erro ao traduzir: {e}')
+        return conselho
+
+
+menu_principal()
