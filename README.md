@@ -1,6 +1,6 @@
 # Projeto de Introdução a Programação
 
-## Alunas: Anne Izabelle; Sabrina Holanda.
+Alunas: Anne Izabelle; Sabrina Holanda.
 
 ## A Missão Secreta da Cachaçaria do Seu Zé:
 Conselhos Digitais para um Negócio Arretado!
