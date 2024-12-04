@@ -2,8 +2,8 @@
 
 ## Alunas: Anne Izabelle; Sabrina Holanda.
 
-##"A Missão Secreta da Cachaçaria do Seu Zé:
-Conselhos Digitais para um Negócio Arretado!"
+## A Missão Secreta da Cachaçaria do Seu Zé:
+Conselhos Digitais para um Negócio Arretado!
 
 # Missão
 Desenvolver um programa que acesse a API mágica
